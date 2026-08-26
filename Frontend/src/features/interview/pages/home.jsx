@@ -6,9 +6,10 @@ import { useDropzone } from 'react-dropzone';
 
 const Home = () => {
 
-    const { loading, generateReport,reports } = useInterview()
+    const { loading, generateReport, reports, deleteReport } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ selectedFile, setSelectedFile ] = useState(null)
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
@@ -72,74 +73,43 @@ const Home = () => {
 
                         {/* Upload Resume */}
                         <div className='upload-section'>
-  <label className='section-label'>
-    Upload Resume
-    <span className='badge badge--best'>Best Results</span>
-  </label>
-
-  <label
-    className='dropzone'
-    htmlFor='resume'
-
-    // ✅ REQUIRED: allow drop
-    onDragOver={(e) => e.preventDefault()}
-
-    // ✅ HANDLE DROP
-    onDrop={(e) => {
-      e.preventDefault();
-
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
-
-      // ✅ Validate file type
-      const validTypes = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      ];
-
-      if (!validTypes.includes(file.type)) {
-        alert("Only PDF or DOCX allowed");
-        return;
-      }
-
-      // ✅ Assign file to input (IMPORTANT FIX)
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      resumeInputRef.current.files = dataTransfer.files;
-
-      // ✅ Optional: show file name
-      console.log("Dropped file:", file.name);
-    }}
-  >
-    <span className='dropzone__icon'>
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="16 16 12 12 8 16" />
-        <line x1="12" y1="12" x2="12" y2="21" />
-        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-      </svg>
-    </span>
-
-    <p className='dropzone__title'>Click to upload or drag & drop</p>
-    <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-
-    <input
-      ref={resumeInputRef}
-      hidden
-      type='file'
-      id='resume'
-      name='resume'
-      accept='.pdf,.docx'
-
-      // ✅ Also handle manual upload
-      onChange={(e) => {
-        const file = e.target.files[0];
-        if (file) {
-          console.log("Selected file:", file.name);
-        }
-      }}
-    />
-  </label>
-</div>
+                            <label className='section-label'>
+                                Upload Resume
+                                <span className='badge badge--best'>Best Results</span>
+                            </label>
+                            <label className='dropzone' htmlFor='resume'>
+                                {selectedFile ? (
+                                    <>
+                                        <span className='dropzone__icon' style={{ color: 'var(--accent-color)' }}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                        </span>
+                                        <p className='dropzone__title' style={{ color: 'var(--accent-color)', fontWeight: 600 }}>{selectedFile.name}</p>
+                                        <p className='dropzone__subtitle'>{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Click to change</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className='dropzone__icon'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
+                                        </span>
+                                        <p className='dropzone__title'>Click to upload or drag & drop</p>
+                                        <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
+                                    </>
+                                )}
+                                <input 
+                                    ref={resumeInputRef} 
+                                    hidden 
+                                    type='file' 
+                                    id='resume' 
+                                    name='resume' 
+                                    accept='.pdf,.docx' 
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files.length > 0) {
+                                            setSelectedFile(e.target.files[0])
+                                        }
+                                    }}
+                                />
+                            </label>
+                        </div>
 
                         {/* OR Divider */}
                         <div className='or-divider'><span>OR</span></div>
@@ -184,10 +154,23 @@ const Home = () => {
                     <h2>My Recent Interview Plans</h2>
                     <ul className='reports-list'>
                         {reports.map(report => (
-                            <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)}>
+                            <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)} style={{ position: 'relative' }}>
                                 <h3>{report.title || 'Untitled Position'}</h3>
                                 <p className='report-meta'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
                                 <p className={`match-score ${report.matchScore >= 80 ? 'score--high' : report.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>Match Score: {report.matchScore}%</p>
+                                <button 
+                                    className='delete-report-btn'
+                                    style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '4px' }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if(window.confirm('Are you sure you want to delete this report?')) {
+                                            deleteReport(report._id);
+                                        }
+                                    }}
+                                    title="Delete Report"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
                             </li>
                         ))}
                     </ul>
