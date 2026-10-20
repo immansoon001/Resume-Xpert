@@ -19,6 +19,13 @@ authRouter.post("/register", authController.registerUserController)
  */
 authRouter.post("/login", authController.loginUserController)
 
+/**
+ * @route POST /api/auth/clerk-sync
+ * @description Sync Clerk authenticated user with backend and issue session token
+ * @access Public
+ */
+authRouter.post("/clerk-sync", authController.clerkSyncController)
+
 
 /**
  * @route GET /api/auth/logout

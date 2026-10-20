@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../auth.context";
-import { login, register, logout, getMe } from "../services/auth.api";
+import { login, register, logout, getMe, clerkSync } from "../services/auth.api";
 
 
 
@@ -37,10 +37,29 @@ export const useAuth = () => {
     const handleLogout = async () => {
         setLoading(true)
         try {
-            const data = await logout()
+            localStorage.removeItem("token")
+            await logout()
+            if (window.Clerk && window.Clerk.user) {
+                await window.Clerk.signOut()
+            }
             setUser(null)
         } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
 
+    const handleClerkSync = async ({ email, username, clerkId }) => {
+        setLoading(true)
+        try {
+            const data = await clerkSync({ email, username, clerkId })
+            if (data?.user) {
+                setUser(data.user)
+                return data.user
+            }
+        } catch (err) {
+            console.error("Clerk sync error:", err)
         } finally {
             setLoading(false)
         }
@@ -62,5 +81,5 @@ export const useAuth = () => {
 
     }, [])
 
-    return { user, loading, handleRegister, handleLogin, handleLogout }
+    return { user, setUser, loading, setLoading, handleRegister, handleLogin, handleLogout, handleClerkSync }
 }
