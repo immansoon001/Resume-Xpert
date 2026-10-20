@@ -1,0 +1,11 @@
+{
+  "name": "interview-ai-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix Backend",
+    "build": "npm install --prefix Backend",
+    "dev:backend": "npm run dev --prefix Backend",
+    "dev:frontend": "npm run dev --prefix Frontend"
+  }
+}
