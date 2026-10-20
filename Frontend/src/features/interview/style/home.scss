@@ -14,6 +14,60 @@ $info-bg:        #1b2a4a;
 $info-border:    #2d4a7a;
 $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
+// ── Dashboard Nav ────────────────────────────────────────────────────────────
+.dashboard-nav {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: rgba(22, 27, 34, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    backdrop-filter: blur(12px);
+
+    .nav-brand {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+    }
+
+    .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+
+        .user-email {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f8fafc;
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: rgba(239, 68, 68, 0.15);
+                border-color: #ef4444;
+                color: #ef4444;
+            }
+        }
+    }
+}
+
 // ── Page Shell ───────────────────────────────────────────────────────────────
 .home-page {
     width: 100%;
@@ -25,8 +79,8 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
+    justify-content: flex-start;
+    padding: 2rem 1.5rem 3rem;
     gap: 2rem;
 }
 

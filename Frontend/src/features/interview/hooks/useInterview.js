@@ -1,5 +1,5 @@
 import { getAllInterviewReports, generateInterviewReport, getInterviewReportById, generateResumeHtml, generateResumePdf, deleteInterviewReport, updateCompletedTasks } from "../services/interview.api"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { InterviewContext } from "../interview.context"
 import { useParams } from "react-router"
 
@@ -17,17 +17,19 @@ export const useInterview = () => {
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile, targetLevel = "mid" }) => {
         setLoading(true)
-        let response = null
         try {
-            response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile, targetLevel })
-            setReport(response.interviewReport)
+            const response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile, targetLevel })
+            if (response && response.interviewReport) {
+                setReport(response.interviewReport)
+                return response.interviewReport
+            }
+            throw new Error(response?.message || "Failed to generate report")
         } catch (error) {
-            console.log(error)
+            console.error("Error generating report:", error)
+            throw error
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReport
     }
 
     const getReportById = async (interviewId) => {
@@ -69,22 +71,53 @@ export const useInterview = () => {
         }
     }
 
+    const [downloadingPdf, setDownloadingPdf] = useState(false)
+
     const getResumePdf = async (interviewReportId) => {
-        setLoading(true)
-        let response = null
+        setDownloadingPdf(true)
         try {
-            response = await generateResumePdf({ interviewReportId })
-            const url = window.URL.createObjectURL(new Blob([ response ], { type: "application/pdf" }))
+            const response = await generateResumePdf({ interviewReportId })
+            
+            // Handle if backend returned JSON error inside blob
+            if (response instanceof Blob && response.type && response.type.includes("application/json")) {
+                const text = await response.text()
+                const errObj = JSON.parse(text)
+                throw new Error(errObj.message || "Failed to generate PDF")
+            }
+
+            const blob = new Blob([ response ], { type: "application/pdf" })
+            const url = window.URL.createObjectURL(blob)
             const link = document.createElement("a")
             link.href = url
-            link.setAttribute("download", `resume_${interviewReportId}.pdf`)
+            link.setAttribute("download", `ATS_Resume_${interviewReportId}.pdf`)
             document.body.appendChild(link)
             link.click()
+            document.body.removeChild(link)
+            setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+            return true
         }
         catch (error) {
-            console.log(error)
+            console.error("Failed to generate PDF on server:", error)
+            // Client-side print fallback: fetch HTML resume and open browser print dialog
+            try {
+                const html = await getResumeHtml(interviewReportId)
+                const printWindow = window.open("", "_blank")
+                if (printWindow) {
+                    printWindow.document.write(html)
+                    printWindow.document.close()
+                    printWindow.focus()
+                    setTimeout(() => {
+                        printWindow.print()
+                    }, 500)
+                    return true
+                }
+            } catch (fallbackErr) {
+                console.error("Print fallback error:", fallbackErr)
+            }
+            alert("Could not generate PDF directly. Please open 'Preview Resume' and click 'Print' to save as PDF.")
+            return false
         } finally {
-            setLoading(false)
+            setDownloadingPdf(false)
         }
     }
 
@@ -171,6 +204,6 @@ export const useInterview = () => {
         }
     }, [ interviewId ])
 
-    return { loading, report, reports, generateReport, getReportById, getReports, getResumeHtml, getResumePdf, deleteReport, toggleTask, toggleDayAllTasks }
+    return { loading, report, reports, generateReport, getReportById, getReports, getResumeHtml, getResumePdf, deleteReport, toggleTask, toggleDayAllTasks, downloadingPdf }
 
 }

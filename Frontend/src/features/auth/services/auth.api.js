@@ -6,12 +6,24 @@ const api = axios.create({
     withCredentials: true
 })
 
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token")
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
+
 export async function register({ username, email, password }) {
 
     try {
         const response = await api.post('/api/auth/register', {
             username, email, password
         })
+
+        if (response.data?.token) {
+            localStorage.setItem("token", response.data.token)
+        }
 
         return response.data
 
@@ -31,6 +43,10 @@ export async function login({ email, password }) {
             email, password
         })
 
+        if (response.data?.token) {
+            localStorage.setItem("token", response.data.token)
+        }
+
         return response.data
 
     } catch (err) {
@@ -41,13 +57,13 @@ export async function login({ email, password }) {
 
 export async function logout() {
     try {
-
+        localStorage.removeItem("token")
         const response = await api.get("/api/auth/logout")
 
         return response.data
 
     } catch (err) {
-
+        localStorage.removeItem("token")
     }
 }
 
@@ -63,4 +79,21 @@ export async function getMe() {
         console.log(err)
     }
 
+}
+
+export async function clerkSync({ email, username, clerkId }) {
+    try {
+        const response = await api.post("/api/auth/clerk-sync", {
+            email, username, clerkId
+        })
+
+        if (response.data?.token) {
+            localStorage.setItem("token", response.data.token)
+        }
+
+        return response.data
+    } catch (err) {
+        console.error("Clerk sync error:", err)
+        throw err
+    }
 }

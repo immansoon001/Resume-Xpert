@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
+import { useAuth } from '../../auth/hooks/useAuth.js'
 import { useNavigate } from 'react-router'
 
 const Home = () => {
 
     const { loading, generateReport, reports, deleteReport } = useInterview()
+    const { user, handleLogout } = useAuth()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
     const [ targetLevel, setTargetLevel ] = useState("mid")
@@ -24,8 +26,24 @@ const Home = () => {
 
     const handleGenerateReport = async () => {
         const resumeFile = resumeInputRef.current?.files?.[ 0 ]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile, targetLevel })
-        navigate(`/interview/${data._id}`)
+        if (!jobDescription || !jobDescription.trim()) {
+            alert("Please enter a Target Job Description before generating your strategy.")
+            return
+        }
+        if (!resumeFile && (!selfDescription || !selfDescription.trim())) {
+            alert("Please upload your resume (PDF) or provide a brief self-description.")
+            return
+        }
+
+        try {
+            const data = await generateReport({ jobDescription, selfDescription, resumeFile, targetLevel })
+            if (data && data._id) {
+                navigate(`/interview/${data._id}`)
+            }
+        } catch (error) {
+            console.error("Strategy generation failed:", error)
+            alert(error.response?.data?.message || error.message || "Failed to generate interview strategy. Please try again.")
+        }
     }
 
     if (loading) {
@@ -38,6 +56,25 @@ const Home = () => {
 
     return (
         <div className='home-page'>
+
+            {/* Dashboard Nav */}
+            <nav className='dashboard-nav'>
+                <div className='nav-brand' onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+                    Resume<span style={{ color: '#00e573' }}>Xpert</span>
+                </div>
+                <div className='nav-user'>
+                    <span className='user-email'>👤 {user?.email || user?.username || 'Active User'}</span>
+                    <button
+                        className='nav-logout-btn'
+                        onClick={async () => {
+                            await handleLogout();
+                            navigate('/login');
+                        }}
+                    >
+                        Sign Out
+                    </button>
+                </div>
+            </nav>
 
             {/* Page Header */}
             <header className='page-header'>

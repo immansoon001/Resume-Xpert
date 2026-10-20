@@ -16,9 +16,15 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
+        required: false
+    },
+
+    clerkId: {
+        type: String,
+        sparse: true,
+        unique: true
     }
-})
+}, { timestamps: true })
 
 const userModel = mongoose.model("users", userSchema)
 

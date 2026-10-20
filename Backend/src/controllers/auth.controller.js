@@ -63,7 +63,8 @@ async function registerUserController(req, res) {
             id: user._id,
             username: user.username,
             email: user.email
-        }
+        },
+        token
     })
 
 }
@@ -107,7 +108,8 @@ async function loginUserController(req, res) {
             id: user._id,
             username: user.username,
             email: user.email
-        }
+        },
+        token
     })
 }
 
@@ -153,11 +155,76 @@ async function getMeController(req, res) {
 
 }
 
+/**
+ * @name clerkSyncController
+ * @description Sync Clerk user with backend database and issue JWT session
+ * @access Public
+ */
+async function clerkSyncController(req, res) {
+    const { email, username, clerkId } = req.body
 
+    if (!email) {
+        return res.status(400).json({
+            message: "Email is required"
+        })
+    }
+
+    try {
+        let user = await userModel.findOne({
+            $or: [
+                ...(clerkId ? [{ clerkId }] : []),
+                { email }
+            ]
+        })
+
+        if (!user) {
+            const baseUsername = username || email.split("@")[0]
+            let finalUsername = baseUsername
+            let count = 1
+            while (await userModel.findOne({ username: finalUsername })) {
+                finalUsername = `${baseUsername}${count++}`
+            }
+
+            user = await userModel.create({
+                username: finalUsername,
+                email,
+                clerkId,
+                password: await bcrypt.hash(Math.random().toString(36), 10)
+            })
+        } else if (clerkId && !user.clerkId) {
+            user.clerkId = clerkId
+            await user.save()
+        }
+
+        const token = jwt.sign(
+            { id: user._id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        )
+
+        res.cookie("token", token, getCookieOptions(req))
+
+        return res.status(200).json({
+            message: "Clerk user authenticated successfully",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            },
+            token
+        })
+    } catch (err) {
+        console.error("Clerk sync error:", err)
+        return res.status(500).json({
+            message: "Failed to authenticate Clerk user"
+        })
+    }
+}
 
 module.exports = {
     registerUserController,
     loginUserController,
     logoutUserController,
-    getMeController
+    getMeController,
+    clerkSyncController
 }
