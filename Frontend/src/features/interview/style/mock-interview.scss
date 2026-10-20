@@ -1,0 +1,528 @@
+// -- Variables (matches interview.scss theme) ----------------------------------
+$bg-page:      #0d1117;
+$bg-card:      #161b22;
+$bg-panel:     #1c2230;
+$bg-input:     #1e2535;
+$border:       #2a3348;
+$text-primary: #e6edf3;
+$text-muted:   #7d8590;
+$accent:       #ff2d78;
+$accent-dim:   rgba(255, 45, 120, 0.15);
+$green:        #3fb950;
+$green-dim:    rgba(63, 185, 80, 0.12);
+$orange:       #f5a623;
+$orange-dim:   rgba(245, 166, 35, 0.12);
+$red:          #ff4d4d;
+$font:         system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+// -- Page ----------------------------------------------------------------------
+.mock-page {
+    min-height: 100vh;
+    background: $bg-page;
+    color: $text-primary;
+    font-family: $font;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+// -- Header --------------------------------------------------------------------
+.mock-header {
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 1.75rem;
+
+    &__back {
+        background: none;
+        border: none;
+        color: $text-muted;
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0;
+        margin-bottom: 1.25rem;
+        transition: color 0.2s;
+        &:hover { color: $text-primary; }
+    }
+
+    &__title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    &__badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+
+        &--technical {
+            background: rgba(88, 166, 255, 0.12);
+            color: #58a6ff;
+        }
+        &--behavioral {
+            background: rgba(188, 140, 255, 0.12);
+            color: #bc8cff;
+        }
+    }
+}
+
+// -- Progress bar -------------------------------------------------------------
+.mock-progress {
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 1.5rem;
+
+    &__label {
+        font-size: 0.8rem;
+        color: $text-muted;
+        margin-bottom: 0.5rem;
+    }
+
+    &__bar {
+        height: 5px;
+        background: $bg-panel;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    &__fill {
+        height: 100%;
+        background: $accent;
+        border-radius: 999px;
+        transition: width 0.4s ease;
+    }
+}
+
+// -- Cards ---------------------------------------------------------------------
+.mock-card {
+    width: 100%;
+    max-width: 780px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 1rem;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+    box-sizing: border-box;
+
+    &__label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $text-muted;
+        margin: 0 0 0.85rem;
+    }
+
+    &__question {
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.55;
+        margin: 0 0 0.85rem;
+    }
+
+    &__intention {
+        font-size: 0.85rem;
+        color: $text-muted;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        svg { flex-shrink: 0; margin-top: 2px; }
+    }
+}
+
+// -- Answer input --------------------------------------------------------------
+.answer-card {
+    @extend .mock-card;
+
+    textarea {
+        width: 100%;
+        min-height: 130px;
+        background: $bg-input;
+        border: 1px solid $border;
+        border-radius: 0.6rem;
+        color: $text-primary;
+        font-family: $font;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        padding: 0.85rem 1rem;
+        resize: vertical;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &::placeholder { color: $text-muted; }
+        &:focus { border-color: $accent; }
+
+        &.live {
+            border-color: $accent;
+            animation: pulse-border 1.5s ease infinite;
+        }
+    }
+}
+
+@keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,120,0); }
+    50%       { box-shadow: 0 0 0 3px rgba(255,45,120,0.2); }
+}
+
+// -- Mic controls --------------------------------------------------------------
+.answer-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+
+    &__mic {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 0.5rem;
+        border: 1px solid $border;
+        background: $bg-panel;
+        color: $text-primary;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover { border-color: $accent; color: $accent; }
+
+        &--recording {
+            background: $accent-dim;
+            border-color: $accent;
+            color: $accent;
+
+            .mic-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: $accent;
+                animation: blink 1s ease infinite;
+            }
+        }
+    }
+
+    &__no-support {
+        font-size: 0.78rem;
+        color: $orange;
+    }
+
+    &__submit {
+        margin-left: auto;
+        padding: 0.6rem 1.4rem;
+        background: $accent;
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+
+        &:hover { opacity: 0.88; transform: translateY(-1px); }
+        &:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+// -- Loading indicator ---------------------------------------------------------
+.evaluating-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    color: $text-muted;
+
+    &__spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid $border;
+        border-top-color: $accent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    p { margin: 0; font-size: 0.9rem; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// -- Feedback card -------------------------------------------------------------
+.feedback-card {
+    @extend .mock-card;
+    border-color: rgba(255, 45, 120, 0.3);
+    background: linear-gradient(135deg, #161b22 0%, #1a1625 100%);
+}
+
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+
+    &__score {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: $accent;
+
+        span { font-size: 0.9rem; font-weight: 400; color: $text-muted; }
+    }
+}
+
+// score bars
+.score-bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.score-bar {
+    &__label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: $text-muted;
+        margin-bottom: 0.35rem;
+    }
+
+    &__track {
+        height: 6px;
+        background: $bg-input;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    &__fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        &--high   { background: $green; }
+        &--medium { background: $orange; }
+        &--low    { background: $red; }
+    }
+}
+
+// strengths / improvements
+.feedback-section {
+    margin-bottom: 1.25rem;
+
+    h4 {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin: 0 0 0.6rem;
+    }
+
+    &--good  h4 { color: $green; }
+    &--improve h4 { color: $orange; }
+    &--hint h4 { color: #58a6ff; }
+
+    ul {
+        margin: 0;
+        padding: 0 0 0 1.2rem;
+        li {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: $text-primary;
+            margin-bottom: 0.3rem;
+        }
+    }
+
+    p {
+        font-size: 0.88rem;
+        line-height: 1.6;
+        color: $text-primary;
+        margin: 0;
+        background: rgba(88, 166, 255, 0.07);
+        border-left: 3px solid #58a6ff;
+        padding: 0.6rem 0.85rem;
+        border-radius: 0 0.4rem 0.4rem 0;
+    }
+}
+
+// -- Next button ---------------------------------------------------------------
+.mock-next-btn {
+    width: 100%;
+    max-width: 780px;
+    padding: 0.75rem;
+    background: $accent;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+
+    &:hover { opacity: 0.88; transform: translateY(-1px); }
+}
+
+// -- Session Summary -----------------------------------------------------------
+.summary-page {
+    @extend .mock-page;
+    justify-content: center;
+}
+
+.summary-card {
+    width: 100%;
+    max-width: 640px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-sizing: border-box;
+
+    &__trophy { font-size: 3rem; margin-bottom: 0.75rem; }
+    &__title  { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.4rem; }
+    &__sub    { color: $text-muted; margin: 0 0 2rem; font-size: 0.9rem; }
+}
+
+.summary-score {
+    font-size: 4rem;
+    font-weight: 900;
+    color: $accent;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+
+    span { font-size: 1.5rem; color: $text-muted; font-weight: 400; }
+}
+
+.summary-label {
+    font-size: 0.82rem;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2rem;
+}
+
+.summary-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+    margin-bottom: 2rem;
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        background: $bg-panel;
+        border-radius: 0.4rem;
+        border: 1px solid $border;
+
+        &__q { color: $text-muted; flex: 1; margin-right: 0.5rem;
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        &__score { font-weight: 700; color: $text-primary; flex-shrink: 0; }
+    }
+}
+
+.summary-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    button {
+        padding: 0.65rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+
+        &.btn-primary {
+            background: $accent;
+            color: #fff;
+            &:hover { opacity: 0.88; }
+        }
+
+        &.btn-secondary {
+            background: $bg-panel;
+            color: $text-primary;
+            border: 1px solid $border;
+            &:hover { border-color: $accent; color: $accent; }
+        }
+    }
+}
+
+// -- Intro screen --------------------------------------------------------------
+.mock-intro {
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+
+    &__icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    &__title { font-size: 1.6rem; font-weight: 800; margin: 0 0 0.5rem; }
+    &__sub   { color: $text-muted; margin: 0 0 1.5rem; line-height: 1.6; }
+
+    &__stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        strong { font-size: 1.5rem; font-weight: 800; color: $accent; }
+        span   { font-size: 0.78rem; color: $text-muted; text-transform: uppercase; letter-spacing: 0.05em; }
+    }
+
+    &__start {
+        padding: 0.8rem 2.5rem;
+        background: $accent;
+        color: #fff;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+
+        &:hover { opacity: 0.88; transform: translateY(-2px); }
+    }
+}

@@ -1,5 +1,6 @@
 const pdfParse = require("pdf-parse")
-const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
+const { generateInterviewReport, generateResumeHtml, generateResumePdf, evaluateAnswer } = require("../services/ai.service")
+
 const interviewReportModel = require("../models/interviewReport.model")
 
 
@@ -11,12 +12,13 @@ const interviewReportModel = require("../models/interviewReport.model")
 async function generateInterViewReportController(req, res) {
 
     const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
-    const { selfDescription, jobDescription } = req.body
+    const { selfDescription, jobDescription, targetLevel = "mid" } = req.body
 
     const interViewReportByAi = await generateInterviewReport({
         resume: resumeContent.text,
         selfDescription,
-        jobDescription
+        jobDescription,
+        targetLevel
     })
 
     const interviewReport = await interviewReportModel.create({
@@ -24,6 +26,7 @@ async function generateInterViewReportController(req, res) {
         resume: resumeContent.text,
         selfDescription,
         jobDescription,
+        targetLevel: [ "junior", "mid", "senior", "lead", "faang" ].includes(targetLevel) ? targetLevel : "mid",
         ...interViewReportByAi
     })
 
@@ -114,4 +117,100 @@ async function deleteInterviewReportController(req, res) {
     });
 }
 
-module.exports = { generateInterViewReportController, getInterviewReportByIdController, getAllInterviewReportsController, generateResumePdfController, deleteInterviewReportController }
+/**
+ * @description Controller to evaluate a candidate's mock interview answer using AI.
+ */
+async function evaluateAnswerController(req, res) {
+    try {
+        const { question, userAnswer, expectedAnswer, questionType, jobTitle } = req.body
+
+        if (!question || !userAnswer) {
+            return res.status(400).json({ error: "question and userAnswer are required" })
+        }
+
+        const feedback = await evaluateAnswer({
+            question,
+            userAnswer: userAnswer.trim(),
+            expectedAnswer: expectedAnswer || "",
+            questionType: questionType || "technical",
+            jobTitle: jobTitle || "Software Engineer"
+        })
+
+        return res.status(200).json({ feedback })
+    } catch (error) {
+        console.error("Error evaluating answer:", error)
+        return res.status(500).json({ message: "Failed to evaluate answer.", error: error.message })
+    }
+}
+
+/**
+ * @description Controller to toggle or update completed tasks for an interview preparation roadmap.
+ */
+async function updateCompletedTasksController(req, res) {
+    try {
+        const { interviewId } = req.params
+        const { completedTasks } = req.body
+
+        if (!Array.isArray(completedTasks)) {
+            return res.status(400).json({ message: "completedTasks must be an array" })
+        }
+
+        const updatedReport = await interviewReportModel.findOneAndUpdate(
+            { _id: interviewId, user: req.user.id },
+            { $set: { completedTasks } },
+            { new: true }
+        )
+
+        if (!updatedReport) {
+            return res.status(404).json({ message: "Interview report not found." })
+        }
+
+        return res.status(200).json({
+            message: "Tasks updated successfully",
+            completedTasks: updatedReport.completedTasks
+        })
+    } catch (error) {
+        console.error("Error updating tasks:", error)
+        return res.status(500).json({ message: "Failed to update tasks.", error: error.message })
+    }
+}
+
+/**
+ * @description Controller to generate tailored resume HTML based on user self description, resume and job description.
+ */
+async function generateResumeHtmlController(req, res) {
+    try {
+        const { interviewReportId } = req.params
+
+        const interviewReport = await interviewReportModel.findById(interviewReportId)
+
+        if (!interviewReport) {
+            return res.status(404).json({
+                message: "Interview report not found."
+            })
+        }
+
+        const { resume, jobDescription, selfDescription } = interviewReport
+
+        const html = await generateResumeHtml({ resume, jobDescription, selfDescription })
+
+        return res.status(200).json({
+            message: "Resume HTML generated successfully.",
+            html
+        })
+    } catch (error) {
+        console.error("Error generating resume HTML:", error)
+        return res.status(500).json({ message: "Failed to generate resume preview.", error: error.message })
+    }
+}
+
+module.exports = {
+    generateInterViewReportController,
+    getInterviewReportByIdController,
+    getAllInterviewReportsController,
+    generateResumeHtmlController,
+    generateResumePdfController,
+    deleteInterviewReportController,
+    evaluateAnswerController,
+    updateCompletedTasksController
+}
