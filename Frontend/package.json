@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "axios": "^1.13.6",
+    "framer-motion": "^14.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-dropzone": "^15.0.0",
     "react-router": "^7.13.1",
     "react-router-dom": "^7.13.1",
-    "sass": "^1.97.3"
+    "sass": "^1.97.3",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -202,6 +202,60 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
     gap: 0.5rem;
 }
 
+// ── Target Level Selector ─────────────────────────────────────────────────────
+.target-level-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.level-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.level-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.4rem;
+    background-color: $bg-input;
+    border: 1px solid $border-color;
+    color: $text-muted;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+
+    &__badge {
+        font-size: 0.72rem;
+    }
+
+    &__label {
+        font-weight: 600;
+    }
+
+    &:hover {
+        border-color: rgba($accent, 0.4);
+        color: $text-primary;
+    }
+
+    &--active {
+        background-color: rgba($accent, 0.15);
+        border-color: $accent;
+        color: #fff;
+        box-shadow: 0 0 10px rgba($accent, 0.2);
+
+        .level-chip__label {
+            color: #fff;
+        }
+    }
+}
+
+
 .dropzone {
     display: flex;
     flex-direction: column;

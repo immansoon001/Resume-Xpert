@@ -91,6 +91,15 @@ const interviewReportSchema = new mongoose.Schema({
     title: {
         type: String,
         required: [ true, "Job title is required" ]
+    },
+    targetLevel: {
+        type: String,
+        enum: [ "junior", "mid", "senior", "lead", "faang" ],
+        default: "mid"
+    },
+    completedTasks: {
+        type: [ String ],
+        default: []
     }
 }, {
     timestamps: true

@@ -8,14 +8,23 @@ const Home = () => {
     const { loading, generateReport, reports, deleteReport } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ targetLevel, setTargetLevel ] = useState("mid")
     const [ selectedFile, setSelectedFile ] = useState(null)
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
+    const TARGET_LEVELS = [
+        { id: "junior", label: "Junior", badge: "👶 Entry" },
+        { id: "mid", label: "Mid-Level", badge: "⚡ Standard" },
+        { id: "senior", label: "Senior", badge: "🎯 Advanced" },
+        { id: "lead", label: "Staff / Lead", badge: "👑 Principal" },
+        { id: "faang", label: "FAANG Tier", badge: "🚀 High Rigor" },
+    ]
+
     const handleGenerateReport = async () => {
-        const resumeFile = resumeInputRef.current.files[ 0 ]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+        const resumeFile = resumeInputRef.current?.files?.[ 0 ]
+        const data = await generateReport({ jobDescription, selfDescription, resumeFile, targetLevel })
         navigate(`/interview/${data._id}`)
     }
 
@@ -56,6 +65,24 @@ const Home = () => {
                             maxLength={5000}
                         />
                         <div className='char-counter'>0 / 5000 chars</div>
+
+                        {/* Seniority / Target Level Selector */}
+                        <div className='target-level-section'>
+                            <label className='section-label'>Target Seniority & Rigor</label>
+                            <div className='level-chips'>
+                                {TARGET_LEVELS.map(lvl => (
+                                    <button
+                                        type='button'
+                                        key={lvl.id}
+                                        className={`level-chip ${targetLevel === lvl.id ? 'level-chip--active' : ''}`}
+                                        onClick={() => setTargetLevel(lvl.id)}
+                                    >
+                                        <span className='level-chip__badge'>{lvl.badge}</span>
+                                        <span className='level-chip__label'>{lvl.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Vertical Divider */}

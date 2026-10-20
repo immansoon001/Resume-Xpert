@@ -31,7 +31,14 @@ interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInte
 
 
 /**
- * @route GET /api/interview/resume/pdf
+ * @route POST /api/interview/resume/html/:interviewReportId
+ * @description generate resume HTML preview on the basis of user self description, resume content and job description.
+ * @access private
+ */
+interviewRouter.post("/resume/html/:interviewReportId", authMiddleware.authUser, interviewController.generateResumeHtmlController)
+
+/**
+ * @route POST /api/interview/resume/pdf/:interviewReportId
  * @description generate resume pdf on the basis of user self description, resume content and job description.
  * @access private
  */
@@ -44,4 +51,19 @@ interviewRouter.post("/resume/pdf/:interviewReportId", authMiddleware.authUser, 
  */
 interviewRouter.delete("/report/:interviewId", authMiddleware.authUser, interviewController.deleteInterviewReportController)
 
-module.exports = interviewRouter
+/**
+ * @route POST /api/interview/mock/feedback
+ * @description Evaluate a candidate's mock interview answer using AI and return structured feedback.
+ * @body { question, userAnswer, expectedAnswer, questionType, jobTitle }
+ * @access private
+ */
+interviewRouter.post("/mock/feedback", authMiddleware.authUser, interviewController.evaluateAnswerController)
+
+/**
+ * @route PATCH /api/interview/report/:interviewId/tasks
+ * @description update completed preparation roadmap tasks for a report.
+ * @access private
+ */
+interviewRouter.patch("/report/:interviewId/tasks", authMiddleware.authUser, interviewController.updateCompletedTasksController)
+
+module.exports = interviewRouter
